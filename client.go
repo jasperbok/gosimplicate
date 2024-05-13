@@ -83,5 +83,5 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]
 		return registrations, err
 	}
 
-	return registrations, nil
+	return responseStruct.Data, nil
 }
