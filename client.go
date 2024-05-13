@@ -26,9 +26,9 @@ func NewClient(username, password, domain string) (*Client, error) {
 	httpClient := http.Client{Jar: jar}
 	c := Client{Username: username, Domain: domain, password: password, client: &httpClient}
 
-	c.Authenticate()
+	err = c.Authenticate()
 
-	return &c, nil
+	return &c, err
 }
 
 func (c *Client) Authenticate() error {
