@@ -46,8 +46,8 @@ func (c *Client) Authenticate() error {
 	return nil
 }
 
-func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) (RegistrationCollection, error) {
-	rc := NewRegistrationCollection()
+func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]Registration, error) {
+	registrations := []Registration{}
 
 	uri := fmt.Sprintf("https://%s.simplicate.nl/api/v2/hours/hours", c.Domain)
 
@@ -55,7 +55,10 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) (Re
 	query.Add("q[start_date][ge]", start.Format("2006-01-02 15:04:05"))
 	query.Add("q[start_date][lt]", end.Format("2006-01-02 15:04:05"))
 	query.Add("q[employee.id]", employeeId)
-	query.Add("select", "id,start_date,end_date,project.,organization.,person.,projectservice.,type.,hours,note,is_time_defined,is_recurring,recurrence,recurrence.id,recurrence.rrule,locked,corrections,leave_id,leave_status.,absence_id,assignment_id,address.id,should_sync_to_cronofy,custom_fields.external_url")
+	query.Add(
+		"select",
+		"id,start_date,end_date,project.,organization.,person.,projectservice.,type.,hours,note,is_time_defined,is_recurring,recurrence,recurrence.id,recurrence.rrule,locked,corrections,leave_id,leave_status.,absence_id,assignment_id,address.id,should_sync_to_cronofy,custom_fields.external_url",
+	)
 	query.Add("limit", "100")
 	query.Add("metadata", "count")
 
@@ -63,13 +66,13 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) (Re
 
 	resp, err := c.client.Get(uri)
 	if err != nil {
-		return rc, err
+		return registrations, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return rc, err
+		return registrations, err
 	}
 
 	responseStruct := struct {
@@ -77,12 +80,8 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) (Re
 	}{}
 
 	if err = json.Unmarshal(body, &responseStruct); err != nil {
-		return rc, err
+		return registrations, err
 	}
 
-	for _, r := range responseStruct.Data {
-		rc.Add(r)
-	}
-
-	return rc, nil
+	return registrations, nil
 }
