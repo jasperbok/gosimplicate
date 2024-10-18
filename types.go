@@ -43,7 +43,7 @@ type Organization struct {
 
 type Project struct {
 	Id                        string       `json:"id"`
-	Name                      string       `json:"name"`
+	Name                      string       `json:"project_name"`
 	ProjectNumber             string       `json:"project_number"`
 	Organization              Organization `json:"organization"`
 	HasRegisterMileageEnabled bool         `json:"has_register_mileage_enabled"`
