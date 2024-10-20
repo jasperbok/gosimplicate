@@ -86,13 +86,39 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]
 	return responseStruct.Data, nil
 }
 
-// GetActiveProjects retrieves a single 'page' of projects.
+// GetActiveProjects retrieves all projects that were active between start and end.
+func (c *Client) GetActiveProjects(employeeId string, start, end time.Time) ([]Project, error) {
+	projects := []Project{}
+	pageLimit := 100
+	pageOffset := 0
+
+	for {
+		result, err := c.GetActiveProjectsPage(employeeId, start, end, pageLimit, pageOffset)
+		if err != nil {
+			return projects, err
+		}
+		projects = append(projects, result.Data...)
+
+		// The API response does not explicitely tell us whether there are
+		// more results, so we have to guess by comparing the number of
+		// results to the page size limit.
+		if len(result.Data) < pageLimit {
+			break
+		}
+
+		pageOffset += 100
+	}
+
+	return projects, nil
+}
+
+// GetActiveProjectsPage retrieves a single 'page' of projects.
 //
 // Manual testing seems to indicate that the `limit` parameter has a
 // maximum value of 100. Anything above that will cap the number of
 // results to 100.
-func (c *Client) GetActiveProjects(employeeID string, start, end time.Time) ([]Project, error) {
-	projects := []Project{}
+func (c *Client) GetActiveProjectsPage(employeeID string, start, end time.Time, pageLimit, pageOffset int) (ProjectsResponse, error) {
+	response := ProjectsResponse{}
 
 	uri := fmt.Sprintf("https://%s.simplicate.nl/api/v2/hours/projects", c.Domain)
 
@@ -100,8 +126,8 @@ func (c *Client) GetActiveProjects(employeeID string, start, end time.Time) ([]P
 	query.Add("q[employee_id]", employeeID)
 	query.Add("q[start_date]", start.Format("2006-01-02 15:04:05"))
 	query.Add("q[end_date]", end.Format("2006-01-02 15:04:05"))
-	query.Add("limit", "5")
-	query.Add("offset", "0")
+	query.Add("limit", fmt.Sprint(pageLimit))
+	query.Add("offset", fmt.Sprint(pageOffset))
 	query.Add("sort", "project_name")
 
 	uri = fmt.Sprintf("%s?%s", uri, query.Encode())
@@ -110,22 +136,18 @@ func (c *Client) GetActiveProjects(employeeID string, start, end time.Time) ([]P
 
 	resp, err := c.client.Get(uri)
 	if err != nil {
-		return projects, err
+		return response, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return projects, err
+		return response, err
 	}
 
-	responseStruct := struct {
-		Data []Project `json:"data"`
-	}{}
-
-	if err = json.Unmarshal(body, &responseStruct); err != nil {
-		return projects, err
+	if err = json.Unmarshal(body, &response); err != nil {
+		return response, err
 	}
 
-	return responseStruct.Data, nil
+	return response, nil
 }

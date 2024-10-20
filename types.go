@@ -89,6 +89,15 @@ type Registration struct {
 	Corrections         Correction     `json:"corrections,omitempty"`
 }
 
+// ProjectsResponse contains response data from the /projects resource.
+//
+// The response also contains `errors` and `debug` keys, but I've
+// never seen them containing anything but `null`, so I don't know
+// what data type they hold.
+type ProjectsResponse struct {
+	Data []Project `json:"data"`
+}
+
 type SimplicateTime struct {
 	time.Time
 }
