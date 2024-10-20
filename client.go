@@ -85,3 +85,47 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]
 
 	return responseStruct.Data, nil
 }
+
+// GetActiveProjects retrieves a single 'page' of projects.
+//
+// Manual testing seems to indicate that the `limit` parameter has a
+// maximum value of 100. Anything above that will cap the number of
+// results to 100.
+func (c *Client) GetActiveProjects(employeeID string, start, end time.Time) ([]Project, error) {
+	projects := []Project{}
+
+	uri := fmt.Sprintf("https://%s.simplicate.nl/api/v2/hours/projects", c.Domain)
+
+	query := url.Values{}
+	query.Add("q[employee_id]", employeeID)
+	query.Add("q[start_date]", start.Format("2006-01-02 15:04:05"))
+	query.Add("q[end_date]", end.Format("2006-01-02 15:04:05"))
+	query.Add("limit", "5")
+	query.Add("offset", "0")
+	query.Add("sort", "project_name")
+
+	uri = fmt.Sprintf("%s?%s", uri, query.Encode())
+
+	fmt.Printf("%s\n", uri)
+
+	resp, err := c.client.Get(uri)
+	if err != nil {
+		return projects, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return projects, err
+	}
+
+	responseStruct := struct {
+		Data []Project `json:"data"`
+	}{}
+
+	if err = json.Unmarshal(body, &responseStruct); err != nil {
+		return projects, err
+	}
+
+	return responseStruct.Data, nil
+}
