@@ -14,6 +14,7 @@ type Client struct {
 	Username string
 	Domain   string
 	password string
+	Employee Person
 	client   *http.Client
 	Users    *UsersClient
 	Hours    *HoursClient
@@ -31,6 +32,12 @@ func NewClient(username, password, domain string) (*Client, error) {
 	c.Hours = &HoursClient{Client: &c}
 
 	err = c.Authenticate()
+
+	employee, err := c.Users.User()
+	if err != nil {
+		return nil, err
+	}
+	c.Employee = employee
 
 	return &c, err
 }
