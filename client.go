@@ -1,13 +1,10 @@
 package gosimplicate
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"time"
 )
 
 type Client struct {
@@ -55,44 +52,4 @@ func (c *Client) Authenticate() error {
 	defer resp.Body.Close()
 
 	return nil
-}
-
-func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]Hours, error) {
-	registrations := []Hours{}
-
-	uri := fmt.Sprintf("https://%s.simplicate.nl/api/v2/hours/hours", c.Domain)
-
-	query := url.Values{}
-	query.Add("q[start_date][ge]", start.Format("2006-01-02 15:04:05"))
-	query.Add("q[start_date][lt]", end.Format("2006-01-02 15:04:05"))
-	query.Add("q[employee.id]", employeeId)
-	query.Add(
-		"select",
-		"id,start_date,end_date,project.,organization.,person.,projectservice.,type.,hours,note,is_time_defined,is_recurring,recurrence,recurrence.id,recurrence.rrule,locked,corrections,leave_id,leave_status.,absence_id,assignment_id,address.id,should_sync_to_cronofy,custom_fields.external_url",
-	)
-	query.Add("limit", "100")
-	query.Add("metadata", "count")
-
-	uri = fmt.Sprintf("%s?%s", uri, query.Encode())
-
-	resp, err := c.client.Get(uri)
-	if err != nil {
-		return registrations, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return registrations, err
-	}
-
-	responseStruct := struct {
-		Data []Hours `json:"data"`
-	}{}
-
-	if err = json.Unmarshal(body, &responseStruct); err != nil {
-		return registrations, err
-	}
-
-	return responseStruct.Data, nil
 }
