@@ -41,6 +41,32 @@ type Organization struct {
 	RelationNumber string `json:"relation_number"`
 }
 
+// Person represents a person in the Simplicate system.
+//
+// The actual API response also contains the 'timezone', 'country' and 'rights'
+// fields, but these are not implemented in this struct yet.
+type Person struct {
+	Username                     string         `json:"username"`
+	Email                        string         `json:"email"`
+	Gender                       string         `json:"gender"`
+	BirthDate                    SimplicateDate `json:"birth_date"`
+	Initials                     string         `json:"initials"`
+	FirstName                    string         `json:"first_name"`
+	FamilyNamePrefix             string         `json:"family_name_prefix"`
+	FamilyName                   string         `json:"family_name"`
+	IsAuthyEnabled               bool           `json:"is_authy_enabled"`
+	IsEmployee                   bool           `json:"is_employee"`
+	IsLightUser                  bool           `json:"is_light_user"`
+	EmployeeID                   string         `json:"employee_id"`
+	PersonID                     string         `json:"person_id"`
+	IsBlocked                    bool           `json:"is_blocked"`
+	IsLockNav                    bool           `json:"is_lock_nav"`
+	KeyIdentifier                string         `json:"key_identifier"`
+	HoursViewMode                string         `json:"hours_view_mode"`
+	IsAccountOwner               bool           `json:"is_account_owner"`
+	HasExternalAgendaIntegration bool           `json:"has_external_agenda_integration"`
+}
+
 type Project struct {
 	Id                        string       `json:"id"`
 	Name                      string       `json:"project_name"`
