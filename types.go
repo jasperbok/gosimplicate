@@ -91,7 +91,8 @@ type ServiceType struct {
 	Type   string `json:"type"`
 }
 
-type Registration struct {
+// Hours represents a single registration of work.
+type Hours struct {
 	Id                  string         `json:"id"`
 	Note                string         `json:"note"`
 	Source              string         `json:"source"`

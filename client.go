@@ -57,8 +57,8 @@ func (c *Client) Authenticate() error {
 	return nil
 }
 
-func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]Registration, error) {
-	registrations := []Registration{}
+func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]Hours, error) {
+	registrations := []Hours{}
 
 	uri := fmt.Sprintf("https://%s.simplicate.nl/api/v2/hours/hours", c.Domain)
 
@@ -87,7 +87,7 @@ func (c *Client) GetRegisteredHours(employeeId string, start, end time.Time) ([]
 	}
 
 	responseStruct := struct {
-		Data []Registration `json:"data"`
+		Data []Hours `json:"data"`
 	}{}
 
 	if err = json.Unmarshal(body, &responseStruct); err != nil {
