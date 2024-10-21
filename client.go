@@ -15,6 +15,7 @@ type Client struct {
 	Domain   string
 	password string
 	client   *http.Client
+	Users    *UsersClient
 }
 
 func NewClient(username, password, domain string) (*Client, error) {
@@ -25,6 +26,7 @@ func NewClient(username, password, domain string) (*Client, error) {
 
 	httpClient := http.Client{Jar: jar}
 	c := Client{Username: username, Domain: domain, password: password, client: &httpClient}
+	c.Users = &UsersClient{Client: &c}
 
 	err = c.Authenticate()
 
