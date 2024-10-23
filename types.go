@@ -116,6 +116,12 @@ type Hours struct {
 	Corrections         Correction     `json:"corrections,omitempty"`
 }
 
+type HoursType struct {
+	Id    string `json:"id"`
+	Label string `json:"label"`
+	Color string `json:"color"`
+}
+
 // ProjectsResponse contains response data from the /projects resource.
 //
 // The response also contains `errors` and `debug` keys, but I've
